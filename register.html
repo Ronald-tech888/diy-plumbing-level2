@@ -71,7 +71,8 @@
       <p class="help" id="ticket-period"></p>
       <noscript><p class="help">Enable JavaScript to select Early Bird pricing before the deadline, or contact us before paying.</p></noscript>
 
-      <label>Payment Method *</label>
+      <label>Planned Payment Method *</label>
+      <p class="help">You can register before paying. Choose how you plan to pay and send your slip later; selecting these options does not mean you have paid.</p>
       <div class="radio-group">
         <label class="radio-option"><input type="radio" name="Payment Method" value="Touch 'n Go eWallet" required>Touch 'n Go eWallet (send to 133083049)</label>
         <label class="radio-option"><input type="radio" name="Payment Method" value="HLB Transfer">HLB Transfer (04100099089 · Ong Soon Chong)</label>
@@ -91,6 +92,7 @@
         I understand seats are confirmed only after payment slip is sent. Replacements allowed; no refunds within 5 days of the workshop.
       </label>
 
+      <p id="form-status" role="alert" tabindex="-1" hidden style="padding:14px;border:2px solid #b42318;border-radius:10px;color:#b42318;background:#fff4f2;"></p>
       <button type="submit">Submit & Continue to Payment</button>
     </form>
     <p class="help" style="margin-top:24px;">Having issues with the form? Email the details to purchasingpoweruser@gmail.com.</p>
@@ -110,7 +112,34 @@
   }
   updateTicketPrices();
   window.addEventListener('pageshow', updateTicketPrices);
-  document.querySelector('form').addEventListener('submit', updateTicketPrices);
+  const form = document.querySelector('form');
+  const status = document.getElementById('form-status');
+  // Keep native validation when JavaScript is unavailable; show a persistent
+  // summary when available, including in mobile in-app browsers.
+  form.noValidate = true;
+  form.addEventListener('submit', function (event) {
+    updateTicketPrices();
+    const invalid = Array.from(form.elements).filter(function (field) {
+      return field.willValidate && !field.validity.valid;
+    });
+    if (invalid.length) {
+      event.preventDefault();
+      const names = Array.from(new Set(invalid.map(function (field) {
+        if (field.name === 'Payment Method') return 'planned payment method';
+        if (field.name === 'Send Slip Via') return 'how you will send your payment slip';
+        if (field.name === 'Seat Confirmation') return 'payment-policy checkbox';
+        if (field.validity.typeMismatch) return 'a valid email address';
+        return field.name;
+      })));
+      status.textContent = 'Not submitted yet. Please complete: ' + names.join(', ') + '. Then tap Submit again. No payment is required to submit this form.';
+      status.hidden = false;
+      status.focus();
+      status.scrollIntoView({ block: 'center' });
+      return;
+    }
+    status.hidden = true;
+    // Use the original native POST to Formspree; do not send twice via fetch.
+  });
 })();
 </script>
 </body>
