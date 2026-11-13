@@ -26,9 +26,9 @@
 </head>
 <body>
   <header>
-    <h1>Fix Your Plumbing Like a Pro (Level 2) – Registration</h1>
+    <h1>FIX LIKE A PRO (Level 2) – Registration</h1>
     <p>Saturday, 9 January 2027 · 9:00 AM – 5:00 PM · Damansara Damai</p>
-    <p>Hands-on class · Max 10 participants</p>
+    <p>Hands-on class · Max 12 participants</p>
   </header>
   <main>
     <div class="info-box">
@@ -63,11 +63,13 @@
       <p class="help">Include country code if you are outside Malaysia.</p>
 
       <label>Ticket Selection *</label>
+      <p class="help">Early Bird through 9 December 2026 (Malaysia time): Public RM730 / Level 1 Alumni RM580. From 10 December: Public RM780 / Level 1 Alumni RM630.</p>
       <div class="radio-group">
-        <label class="radio-option"><input type="radio" name="Ticket" value="Alumni – RM580" required>Alumni – RM580</label>
-        <label class="radio-option"><input type="radio" name="Ticket" value="Public – RM730">Public – RM730</label>
-        <label class="radio-option"><input type="radio" name="Ticket" value="Standard – RM980">Standard – RM980</label>
+        <label class="radio-option"><input type="radio" id="ticket-alumni" name="Ticket" value="Level 1 Alumni – RM630" required><span id="ticket-alumni-label">Level 1 Alumni – RM630</span></label>
+        <label class="radio-option"><input type="radio" id="ticket-public" name="Ticket" value="Public – RM780"><span id="ticket-public-label">Public – RM780</span></label>
       </div>
+      <p class="help" id="ticket-period"></p>
+      <noscript><p class="help">Enable JavaScript to select Early Bird pricing before the deadline, or contact us before paying.</p></noscript>
 
       <label>Payment Method *</label>
       <div class="radio-group">
@@ -93,5 +95,23 @@
     </form>
     <p class="help" style="margin-top:24px;">Having issues with the form? Email the details to purchasingpoweruser@gmail.com.</p>
   </main>
+<script>
+(function () {
+  const earlyBirdDeadline = new Date('2026-12-10T00:00:00+08:00').getTime();
+  function updateTicketPrices() {
+    const early = Date.now() < earlyBirdDeadline;
+    const prices = { alumni: early ? 580 : 630, public: early ? 730 : 780 };
+    for (const type of ['alumni', 'public']) {
+      const label = (type === 'alumni' ? 'Level 1 Alumni' : 'Public') + (early ? ' Early Bird' : '') + ' – RM' + prices[type];
+      document.getElementById('ticket-' + type).value = label;
+      document.getElementById('ticket-' + type + '-label').textContent = label;
+    }
+    document.getElementById('ticket-period').textContent = early ? 'Early Bird pricing applies through 9 December 2026, Malaysia time.' : 'Regular pricing applies from 10 December 2026, Malaysia time.';
+  }
+  updateTicketPrices();
+  window.addEventListener('pageshow', updateTicketPrices);
+  document.querySelector('form').addEventListener('submit', updateTicketPrices);
+})();
+</script>
 </body>
 </html>
